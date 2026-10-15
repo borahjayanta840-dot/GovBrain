@@ -13,6 +13,7 @@ import {
   Home,
   LayoutGrid,
   MapPin,
+  Newspaper,
   ShieldCheck,
   Sparkles,
   X,
@@ -60,6 +61,13 @@ const NAV_ITEMS: MobileNavItem[] = [
     icon: BriefcaseBusiness,
     description: "Jobs and scholarships",
     isCurrent: (p) => p.startsWith("/jobs") || p.startsWith("/scholarships"),
+  },
+  {
+    label: "Latest updates",
+    href: "/updates",
+    icon: Newspaper,
+    description: "Changes on official source pages",
+    isCurrent: (p) => p.startsWith("/updates"),
   },
   {
     label: "Ask AI",

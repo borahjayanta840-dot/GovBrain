@@ -10,6 +10,7 @@ import { AiSection } from "@/components/home/ai-section";
 import { TrackingSection } from "@/components/home/tracking-section";
 import { VaultSection } from "@/components/home/vault-section";
 import { JobsSection } from "@/components/home/jobs-section";
+import { OfficialUpdatesSection } from "@/components/home/official-updates-section";
 import { WhyHowSection } from "@/components/home/why-how-section";
 import {
   NewsletterSection,
@@ -72,6 +73,7 @@ export default async function Home({
         <TrackingSection languageCode={languageCode} />
         <VaultSection languageCode={languageCode} />
         <JobsSection languageCode={languageCode} />
+        <OfficialUpdatesSection />
         <WhyHowSection languageCode={languageCode} />
         <SocialSection />
         <AppSection languageCode={languageCode} />

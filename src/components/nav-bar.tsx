@@ -10,6 +10,7 @@ import {
   LayoutGrid,
   MapPin,
   Menu,
+  Newspaper,
   BriefcaseBusiness,
   Search,
   ShieldCheck,
@@ -60,6 +61,12 @@ const PRIMARY_NAV: NavItem[] = [
     href: "/jobs",
     icon: BriefcaseBusiness,
     isCurrent: (pathname) => pathname.startsWith("/jobs") || pathname.startsWith("/scholarships"),
+  },
+  {
+    label: "Latest updates",
+    href: "/updates",
+    icon: Newspaper,
+    isCurrent: (pathname) => pathname.startsWith("/updates"),
   },
   {
     label: "How it works",

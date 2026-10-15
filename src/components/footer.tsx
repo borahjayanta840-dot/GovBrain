@@ -48,6 +48,11 @@ export function Footer({ languages, languageCode }: FooterProps) {
               </Link>
             </li>
             <li>
+              <Link href={`/updates?lang=${languageCode}`} className="text-sm text-white/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500">
+                Latest official updates
+              </Link>
+            </li>
+            <li>
               <Link href={`/auth?lang=${languageCode}`} className="text-sm text-white/70 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500">
                 Sign in
               </Link>

@@ -30,6 +30,15 @@ export type EligibilityRule = {
   status: string;
   translations: { language_code: string; question_text: string; option_labels: Record<string, string> }[];
 };
+export type OfficialSourceUpdate = {
+  id: string;
+  source_title: string;
+  source_url: string;
+  page_title: string;
+  excerpt: string;
+  detected_at: string;
+  is_baseline: boolean;
+};
 
 type Relation<T> = T | T[] | null;
 type RawTranslation = Omit<Translation, "language_code"> & { languages: Relation<{ code: string }> };
@@ -123,6 +132,20 @@ export async function getService(stateCode: string, slug: string) {
   if (!supabase) return { data: null, error: true };
   const { data, error } = await supabase.from("services").select(serviceSelect).eq("status", "published").eq("slug", slug).eq("states.code", stateCode.toUpperCase()).maybeSingle();
   return { data: data ? mapService(data as unknown as RawService) : null, error: Boolean(error) };
+}
+
+export async function getOfficialSourceUpdates(limit = 30) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { data: [] as OfficialSourceUpdate[], error: true };
+  const { data, error } = await supabase
+    .from("official_source_updates")
+    .select("id, source_title, source_url, page_title, excerpt, detected_at, is_baseline")
+    .order("detected_at", { ascending: false })
+    .limit(Math.max(1, Math.min(limit, 30)));
+  return {
+    data: (data ?? []) as OfficialSourceUpdate[],
+    error: Boolean(error),
+  };
 }
 
 export async function getChecklistState(serviceId: string) {

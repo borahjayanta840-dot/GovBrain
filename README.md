@@ -43,6 +43,19 @@ The form validates URLs and status values server-side. It never uses a service-r
 
 The `/ai` assistant uses curated facts about this platform plus matching published service records from Supabase. Gemini answers are instructed not to guess missing government requirements, fees, deadlines, or official links; source links returned to the browser must match a verified source in the supplied context. If Gemini is not configured or is unavailable, the local provider returns only available context and cannot provide free-form answers. Keep service translations and official-source verification current in the database for useful service guidance. The assistant cannot see private account records or live government application status.
 
+## Automatic official-source updates
+
+The home page and `/updates` page show snapshots from verified government source pages linked to published services. Vercel runs the checker once daily. The first successful check publishes a clearly marked initial snapshot; later checks publish only when page content changes. Each item includes the original source link; a page change is not treated as verified evidence that a service rule or deadline changed.
+
+To enable monitoring in production:
+
+1. Apply the Supabase migration with `supabase db push`.
+2. Set `SUPABASE_SERVICE_ROLE_KEY` and a long random `CRON_SECRET` in the Vercel project environment. The service-role key is used only by the scheduled server endpoint and must never be exposed to the browser.
+3. Ensure each source to monitor is marked `verified` and belongs to a published service. Only HTTPS `.gov.in` and `.nic.in` source domains are fetched; redirects and non-text responses are rejected.
+4. Deploy the project with the included `vercel.json` cron configuration. The first run records a baseline; subsequent runs publish changes.
+
+Add new official portals by adding their source links through the service editor and verifying them. The checker does not scrape third-party sites or infer the meaning of page changes.
+
 ## Quality checks
 
 ```bash
