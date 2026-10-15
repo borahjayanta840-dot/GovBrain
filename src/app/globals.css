@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf9f6;
-  --foreground: #172d2a;
-  --surface: #ffffff;
+  --background: #e9ece7;
+  --foreground: #18332f;
+  --surface: #edf0eb;
   --brand-gradient: linear-gradient(135deg, #176b63 0%, #104b45 100%);
   --brand-forest: #104b45;
   --brand-teal: #176b63;
-  --brand-ivory: #faf9f6;
+  --brand-ivory: #edf0eb;
   --brand-amber: #d99b36;
-  --border-subtle: rgba(23, 52, 47, 0.1);
+  --border-subtle: rgba(43, 63, 55, 0.1);
+  --clay-raised:
+    8px 8px 18px rgba(69, 82, 73, 0.14),
+    -8px -8px 18px rgba(255, 255, 255, 0.78),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.64);
+  --clay-raised-hover:
+    11px 11px 22px rgba(69, 82, 73, 0.18),
+    -9px -9px 20px rgba(255, 255, 255, 0.82),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.7);
+  --clay-inset:
+    inset 4px 4px 9px rgba(69, 82, 73, 0.13),
+    inset -4px -4px 9px rgba(255, 255, 255, 0.88);
 }
 
 @theme inline {
@@ -31,19 +42,35 @@
   --color-slate-900: #172d2a;
   --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
 
-  --shadow-xs: 0 1px 2px rgba(20, 47, 41, 0.04);
-  --shadow-sm: 0 2px 8px rgba(20, 47, 41, 0.05);
-  --shadow-md: 0 8px 24px rgba(20, 47, 41, 0.07);
-  --shadow-lg: 0 16px 40px rgba(20, 47, 41, 0.1);
-  --shadow-xl: 0 24px 64px rgba(20, 47, 41, 0.13);
-  --shadow-2xl: 0 32px 80px rgba(20, 47, 41, 0.16);
+  --shadow-xs:
+    2px 2px 5px rgba(69, 82, 73, 0.1), -2px -2px 5px rgba(255, 255, 255, 0.7);
+  --shadow-sm:
+    4px 4px 10px rgba(69, 82, 73, 0.12),
+    -4px -4px 10px rgba(255, 255, 255, 0.74);
+  --shadow-md: var(--clay-raised);
+  --shadow-lg: var(--clay-raised-hover);
+  --shadow-xl:
+    14px 14px 30px rgba(69, 82, 73, 0.2),
+    -12px -12px 28px rgba(255, 255, 255, 0.8);
+  --shadow-2xl:
+    18px 18px 38px rgba(69, 82, 73, 0.22),
+    -16px -16px 34px rgba(255, 255, 255, 0.82);
 }
 
 body {
   background: var(--background);
   background-image:
-    radial-gradient(ellipse 70% 45% at 50% -25%, rgba(23, 107, 99, 0.055), transparent),
-    linear-gradient(180deg, #faf9f6 0%, #f7f8f5 55%, #faf9f6 100%);
+    radial-gradient(
+      ellipse 70% 45% at 50% -25%,
+      rgba(255, 255, 255, 0.72),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 100% 45%,
+      rgba(23, 107, 99, 0.045),
+      transparent
+    ),
+    linear-gradient(180deg, #e9ece7 0%, #e5e9e4 55%, #e9ece7 100%);
   color: var(--foreground);
   font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
 }
@@ -159,11 +186,21 @@ body {
 }
 
 /* Staggered entrance delays for card grids / hero children */
-.stagger-1 { animation-delay: 0.08s; }
-.stagger-2 { animation-delay: 0.16s; }
-.stagger-3 { animation-delay: 0.24s; }
-.stagger-4 { animation-delay: 0.32s; }
-.stagger-5 { animation-delay: 0.4s; }
+.stagger-1 {
+  animation-delay: 0.08s;
+}
+.stagger-2 {
+  animation-delay: 0.16s;
+}
+.stagger-3 {
+  animation-delay: 0.24s;
+}
+.stagger-4 {
+  animation-delay: 0.32s;
+}
+.stagger-5 {
+  animation-delay: 0.4s;
+}
 
 /* ── Premium surfaces ─────────────────────────────────── */
 
@@ -176,6 +213,10 @@ body {
 
 .brand-gradient {
   background: var(--brand-gradient);
+  box-shadow:
+    5px 5px 11px rgba(12, 62, 54, 0.24),
+    -3px -3px 9px rgba(255, 255, 255, 0.34),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .editorial-serif {
@@ -183,12 +224,15 @@ body {
 }
 
 .glass {
-  background: rgba(250, 249, 246, 0.92);
+  background: rgba(237, 240, 235, 0.88);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
 }
 
 .card-hover {
+  background-color: var(--surface);
+  border-color: rgba(69, 82, 73, 0.11);
+  box-shadow: var(--clay-raised);
   transition:
     transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
@@ -196,8 +240,51 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(23, 107, 99, 0.28);
+  box-shadow: var(--clay-raised-hover);
+  border-color: rgba(23, 107, 99, 0.24);
+}
+
+/* Shared surfaces and controls keep the clay treatment consistent across routes. */
+:where(
+    article,
+    figure,
+    section,
+    div
+  )[class~="bg-white"][class*="rounded-"][class*="p-"]:not(a):not(button):not(
+    span
+  ) {
+  background-color: var(--surface);
+  border-color: rgba(69, 82, 73, 0.11);
+  box-shadow: var(--clay-raised);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  border-color: rgba(69, 82, 73, 0.18);
+  background-color: var(--surface);
+  box-shadow: var(--clay-inset);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+select:focus,
+textarea:focus {
+  border-color: #176b63;
+  box-shadow:
+    var(--clay-inset),
+    0 0 0 3px rgba(23, 107, 99, 0.14);
+}
+
+button[class*="rounded-"] {
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+button[class*="rounded-"]:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: var(--clay-inset);
 }
 
 .section-rule {
