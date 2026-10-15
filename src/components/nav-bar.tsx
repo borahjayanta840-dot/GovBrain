@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   Bookmark,
-  Circle,
   HelpCircle,
   Home,
   LayoutGrid,
+  MapPin,
   Menu,
+  BriefcaseBusiness,
   Search,
   ShieldCheck,
   Sparkles,
@@ -48,8 +49,30 @@ const PRIMARY_NAV: NavItem[] = [
     icon: LayoutGrid,
     isCurrent: (pathname) => pathname.startsWith("/services"),
   },
-  { label: "How It Works", href: "/#how-it-works", icon: HelpCircle, isCurrent: () => false },
-  { label: "Categories", href: "/#categories", icon: Circle, isCurrent: () => false },
+  {
+    label: "Find help",
+    href: "/csc",
+    icon: MapPin,
+    isCurrent: (pathname) => pathname.startsWith("/csc"),
+  },
+  {
+    label: "Opportunities",
+    href: "/jobs",
+    icon: BriefcaseBusiness,
+    isCurrent: (pathname) => pathname.startsWith("/jobs") || pathname.startsWith("/scholarships"),
+  },
+  {
+    label: "How it works",
+    href: "/#how-it-works",
+    icon: HelpCircle,
+    isCurrent: () => false,
+  },
+  {
+    label: "Ask AI",
+    href: "/ai",
+    icon: Sparkles,
+    isCurrent: (pathname) => pathname.startsWith("/ai"),
+  },
 ];
 
 /** Keeps the language query string while preserving any section hash. */
@@ -199,7 +222,7 @@ export function NavBar({ languages, languageCode }: NavBarProps) {
               Below xl it folds into the sheet so the bar never crowds. */}
           <nav
             aria-label="Main navigation"
-            className="hidden items-center gap-0.5 rounded-2xl border border-slate-200/60 bg-white/60 p-1 shadow-xs xl:flex"
+            className="hidden items-center gap-0.5 rounded-2xl border border-slate-200/70 bg-white/75 p-1 shadow-xs 2xl:flex"
           >
             {PRIMARY_NAV.map((item) => (
               <NavLink key={item.label} item={item} languageCode={languageCode} pathname={pathname} />
@@ -215,6 +238,7 @@ export function NavBar({ languages, languageCode }: NavBarProps) {
               className="hidden h-11 w-11 items-center justify-center rounded-xl border border-slate-200/80 bg-white/70 text-slate-500 shadow-xs transition-all duration-200 hover:border-teal-700/30 hover:bg-white hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 lg:inline-flex"
             >
               <Search className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">Search services</span>
             </Link>
 
             <Link
@@ -222,23 +246,23 @@ export function NavBar({ languages, languageCode }: NavBarProps) {
               aria-current={pathname.startsWith("/my-services") ? "page" : undefined}
               aria-label="My Services"
               title="My Services"
-              className={`hidden h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 lg:inline-flex ${
+              className={`hidden h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 2xl:inline-flex ${
                 pathname.startsWith("/my-services")
                   ? "bg-white text-teal-800 shadow-sm ring-1 ring-teal-900/10"
                   : "text-slate-600 hover:bg-white/70 hover:text-teal-800"
               }`}
             >
               <Bookmark className="h-4 w-4" aria-hidden="true" />
-              <span className="sr-only">My Services</span>
+              <span>My services</span>
             </Link>
 
             <AuthNav languageCode={languageCode} />
 
-            <span aria-hidden="true" className="hidden h-6 w-px bg-slate-200 xl:block" />
+            <span aria-hidden="true" className="hidden h-6 w-px bg-slate-200 2xl:block" />
 
             {/* Secondary controls: compact below 2xl, labelled from 2xl up.
                 Below xl they live in the sheet, which stays reachable until 2xl. */}
-            <div className="hidden items-center gap-2 xl:flex">
+            <div className="hidden items-center gap-2 2xl:flex">
               <EasyModeToggle variant="icon" />
               <LanguageSelector languages={languages} value={languageCode} />
             </div>
@@ -249,7 +273,7 @@ export function NavBar({ languages, languageCode }: NavBarProps) {
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-              className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border shadow-xs transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 active:scale-95 xl:hidden ${
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-xl border shadow-xs transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 active:scale-95 2xl:hidden ${
                 menuOpen
                   ? "border-teal-700/30 bg-white text-teal-800"
                   : "border-slate-200/80 bg-white/70 text-slate-600 hover:border-teal-700/30 hover:bg-white hover:text-teal-800"

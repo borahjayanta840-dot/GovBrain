@@ -37,19 +37,36 @@ export class LocalProvider {
   async generateAnswer(
     userMessage: string,
     context: string = this.serviceContext,
-    language: string = "en"
+    language: string = "en",
+    _conversationHistory: { role: string; content: string }[] = []
   ): Promise<AssistantResponse> {
-    // If context contains service information, use it
-    if (context && context.length > 0) {
+    void _conversationHistory;
+    if (context.trim()) {
+      const lines = context.split("\n").map((line) => line.trim()).filter(Boolean);
+      const queryWords = userMessage.toLowerCase().match(/[\p{L}\p{N}]{3,}/gu) ?? [];
+      const relevantLines = lines.filter((line) => {
+        const normalizedLine = line.toLowerCase();
+        return queryWords.some((word) => normalizedLine.includes(word)) ||
+          /^(service|description|full description|details|eligibility|how to apply|documents):/i.test(line);
+      });
+      const answer = this.formatAnswer(relevantLines.length ? relevantLines : lines, language);
+      const sourceLine = lines.find((line) => /^(official sources|verified official sources):/i.test(line));
+      const officialSources = sourceLine
+        ? [...sourceLine.slice(sourceLine.indexOf(":") + 1).matchAll(/([^;—]+?)\s*[—-]\s*(https?:\/\/\S+)/g)].map((match) => ({
+            title: match[1].trim(),
+            url: match[2].replace(/[),.;]+$/, ""),
+          }))
+        : [];
+
       return {
         intent: "service_information",
         language,
         service_id: null,
-        answer: this.extractFromContext(context, userMessage, language),
-        eligibility: this.extractSection(context, "eligibility"),
-        required_documents: this.extractSection(context, "documents"),
-        next_steps: this.extractSection(context, "apply"),
-        official_sources: [],
+        answer,
+        eligibility: this.extractSection(lines, /^eligibility:/i),
+        required_documents: this.extractSection(lines, /^documents:/i),
+        next_steps: this.extractSection(lines, /^(how to apply|apply):/i),
+        official_sources: officialSources,
         needs_clarification: false,
         clarification_question: null,
       };
@@ -78,41 +95,28 @@ export class LocalProvider {
     return this.generateAnswer(userMessage, dbContext, options.language ?? "en");
   }
 
-  private extractFromContext(context: string, query: string, language: string): string {
-    const lowerContext = context.toLowerCase();
-    const queryWords = query.toLowerCase().split(/\s+/).filter((word) => word.length > 3);
-
-    // Consider the context relevant when it shares a meaningful word with the
-    // query or clearly contains government-service information.
-    const sharesWord = queryWords.some((word) => lowerContext.includes(word));
-    if (sharesWord || lowerContext.includes("service") || lowerContext.includes("government")) {
-      return this.formatAnswer(context, language);
-    }
-
-    return "I couldn't find specific information matching your request in the available sources.";
+  private extractSection(lines: string[], section: RegExp): string[] {
+    return lines
+      .filter((line) => section.test(line))
+      .map((line) => line.slice(line.indexOf(":") + 1).trim())
+      .filter(Boolean)
+      .slice(0, 5);
   }
 
-  private extractSection(context: string, keyword: string): string[] {
-    const sections: string[] = [];
-    const lines = context.split("\n");
-
-    for (const line of lines) {
-      const lowerLine = line.toLowerCase();
-      if (lowerLine.includes(keyword) && line.trim().length > 10) {
-        sections.push(line.trim());
-      }
-    }
-
-    return sections.slice(0, 5); // Limit to 5 items
-  }
-
-  private formatAnswer(context: string, language: string): string {
+  private formatAnswer(lines: string[], language: string): string {
+    const supportedFacts = lines.filter((line) =>
+      /^(identity|purpose|region and languages|how to use|ai limits|privacy and safety|support|service|description|full description|details|eligibility|how to apply|apply|documents):/i.test(line)
+    );
+    const answer = supportedFacts.map((line) => line.slice(line.indexOf(":") + 1).trim()).join("\n");
+    if (answer && language === "hi") return `उपलब्ध जानकारी:\n${answer}`;
+    if (answer && language === "as") return `উপলব্ধ তথ্য:\n${answer}`;
+    if (answer) return answer;
     if (language === "hi") {
-      return "मेरे पास इस सेवा के बारे में कुछ जानकारी है। कृपया नीचे दी गई जानकारी देखें।";
+      return "उपलब्ध आधिकारिक स्रोतों से मैं इस जानकारी की पुष्टि नहीं कर सका।";
     }
     if (language === "as") {
-      return "আমি এই সেবা বিষয়ে কিছু তথ্য রয়েছে। দয়া করে নিচের তথ্যটি দেখুন।";
+      return "উপলব্ধ চৰকাৰী উৎসৰ পৰা এই তথ্য নিশ্চিত কৰিব নোৱাৰিলোঁ।";
     }
-    return "I have some information about this service. Please see the details below.";
+    return "I couldn't verify this information from the available official sources.";
   }
 }

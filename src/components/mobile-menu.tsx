@@ -5,12 +5,14 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import {
   Bookmark,
+  BriefcaseBusiness,
   Check,
   ChevronRight,
   Compass,
   HelpCircle,
   Home,
   LayoutGrid,
+  MapPin,
   ShieldCheck,
   Sparkles,
   X,
@@ -44,6 +46,27 @@ const NAV_ITEMS: MobileNavItem[] = [
     icon: LayoutGrid,
     description: "Browse every scheme",
     isCurrent: (p) => p.startsWith("/services"),
+  },
+  {
+    label: "Find help",
+    href: "/csc",
+    icon: MapPin,
+    description: "Explore in-person assistance",
+    isCurrent: (p) => p.startsWith("/csc"),
+  },
+  {
+    label: "Opportunities",
+    href: "/jobs",
+    icon: BriefcaseBusiness,
+    description: "Jobs and scholarships",
+    isCurrent: (p) => p.startsWith("/jobs") || p.startsWith("/scholarships"),
+  },
+  {
+    label: "Ask AI",
+    href: "/ai",
+    icon: Sparkles,
+    description: "Get guidance on a service",
+    isCurrent: (p) => p.startsWith("/ai"),
   },
   {
     label: "How It Works",
@@ -106,7 +129,7 @@ export function MobileMenu({ isOpen, onClose, languageCode, languages }: MobileM
   const currentLanguage = languages.find((language) => language.code === languageCode);
 
   return (
-    <div className="fixed inset-0 z-[80] xl:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <div className="fixed inset-0 z-[80] 2xl:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-slate-900/45 backdrop-blur-md anim-fade-in"

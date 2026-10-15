@@ -17,8 +17,8 @@ export function VaultSection({ languageCode }: { languageCode: string }) {
           <SectionHeading
             id="vault-heading"
             kicker="Document vault"
-            title="Every paper, ready before you queue"
-            lead="Checklists for the documents offices actually ask for — organized by service."
+            title="Prepare your documents with confidence."
+            lead="Use service-specific checklists to keep track of what you may need. Requirements can vary; always confirm them with the official source."
           />
           <div className="mt-5 flex flex-wrap gap-2">
             {vaultDocuments.map((doc) => (
@@ -51,9 +51,9 @@ export function VaultSection({ languageCode }: { languageCode: string }) {
           </ul>
         </div>
         <Reveal delay={0.1}>
-          <div className="rounded-2xl border border-slate-200/80 bg-[#f4f7f6] p-6 shadow-md">
-            <p className="text-xs font-bold tracking-widest text-teal-700 uppercase">
-              Income Certificate — checklist
+          <div className="rounded-2xl border border-slate-200/80 bg-[#f4f5f0] p-6 shadow-sm">
+            <p className="text-xs font-semibold tracking-widest text-teal-800 uppercase">
+              Example · Income Certificate checklist
             </p>
             <ul className="mt-4 space-y-2.5">
               {[

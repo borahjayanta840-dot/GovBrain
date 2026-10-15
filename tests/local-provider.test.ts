@@ -4,6 +4,7 @@ import {
   IntentResponseSchema,
 } from "@/lib/ai/schemas/assistant-response";
 import { LocalProvider } from "@/lib/ai/providers/local";
+import { PLATFORM_KNOWLEDGE } from "@/lib/ai/platform-knowledge";
 
 const serviceContext = [
   "SERVICE: Income Certificate (আয়ৰ প্ৰমাণপত্ৰ)",
@@ -33,6 +34,30 @@ describe("LocalProvider", () => {
     expect(parsed.required_documents).toEqual([]);
     expect(parsed.official_sources).toEqual([]);
     expect(parsed.needs_clarification).toBe(false);
+  });
+
+  it("returns grounded platform facts instead of a generic answer", async () => {
+    const result = await provider.generateAnswer(
+      "Is GovGuide AI a government website?",
+      PLATFORM_KNOWLEDGE,
+      "en"
+    );
+
+    expect(result.answer).toContain("independent information and assistance platform");
+    expect(result.answer).toContain("not a government authority");
+    expect(result.answer).not.toContain("I have some information");
+  });
+
+  it("returns only source links present in verified context", async () => {
+    const result = await provider.generateAnswer(
+      "Where can I read more?",
+      "VERIFIED OFFICIAL SOURCES: Official service page — https://example.gov.in/service (verified 2026-09-22)",
+      "en"
+    );
+
+    expect(result.official_sources).toEqual([
+      { title: "Official service page", url: "https://example.gov.in/service" },
+    ]);
   });
 
   it("generateAnswer with service context returns a schema-valid structured response", async () => {

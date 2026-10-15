@@ -14,9 +14,9 @@ export const UserMessageSchema = z.object({
   conversation_history: z.array(
     z.object({
       role: z.enum(["user", "assistant"]),
-      content: z.string(),
+      content: z.string().max(2000),
     })
-  ).optional(),
+  ).max(6).optional(),
 });
 
 export type UserMessage = z.infer<typeof UserMessageSchema>;

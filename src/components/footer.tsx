@@ -11,7 +11,7 @@ export function Footer({ languages, languageCode }: FooterProps) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto bg-slate-900 text-white">
+    <footer className="mt-auto bg-[#153d37] text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
         {/* Brand & about */}
         <div className="space-y-4">

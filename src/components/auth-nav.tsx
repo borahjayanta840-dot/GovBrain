@@ -51,7 +51,7 @@ export function AuthNav({ languageCode, variant = "desktop" }: AuthNavProps) {
   ) : (
     <Link
       href={`/auth?lang=${languageCode}`}
-      className="min-h-11 inline-flex items-center rounded-md px-3 py-2 text-sm font-medium text-teal-700 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700 transition-colors"
+      className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#154f47] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#103f39] hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
     >
       Sign in
     </Link>

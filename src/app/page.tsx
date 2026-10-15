@@ -3,7 +3,6 @@ import { SiteShell } from "@/components/site-shell";
 import { getCategories } from "@/lib/data";
 import { getPageLanguage } from "@/lib/language";
 import { HeroSection } from "@/components/home/hero-section";
-import { SearchBand } from "@/components/home/search-band";
 import { CategoriesSection } from "@/components/home/categories-section";
 import { PopularServicesSection } from "@/components/home/popular-services-section";
 import { CscSection } from "@/components/home/csc-section";
@@ -20,9 +19,9 @@ import { AppSection, CtaSection } from "@/components/home/closing-sections";
 import { organizationSchema } from "@/config/home";
 
 export const metadata: Metadata = {
-  title: "GovGuide AI — One Platform For All Citizen Services",
+  title: "GovGuide AI — Clear guidance for public services",
   description:
-    "Save Time. Save Money. Reduce Paperwork. Find government services, CSC centers, jobs, scholarships, AI guidance, tracking, and document checklists.",
+    "Understand public services, prepare documents, find in-person help, and follow official sources with independent guidance from GovGuide AI.",
   keywords: [
     "government services",
     "CSC",
@@ -33,15 +32,14 @@ export const metadata: Metadata = {
     "income certificate",
   ],
   openGraph: {
-    title: "GovGuide AI — One Platform For All Citizen Services",
-    description:
-      "Save Time. Save Money. Reduce Paperwork. Guidance, CSC centers, jobs, AI help, tracking & documents.",
+    title: "GovGuide AI — Clear guidance for public services",
+    description: "Understand public services, prepare documents and follow official sources.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "GovGuide AI — One Platform For All Citizen Services",
-    description: "Save Time. Save Money. Reduce Paperwork.",
+    title: "GovGuide AI — Clear guidance for public services",
+    description: "Independent guidance to help you understand public services and your next steps.",
   },
 };
 
@@ -64,7 +62,6 @@ export default async function Home({
       />
       <main id="main-content">
         <HeroSection languageCode={languageCode} />
-        <SearchBand languageCode={languageCode} />
         <CategoriesSection
           categories={categoriesResult.data}
           languageCode={languageCode}

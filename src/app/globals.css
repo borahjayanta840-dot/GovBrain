@@ -1,50 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f7f6;
-  --foreground: #18302d;
+  --background: #faf9f6;
+  --foreground: #172d2a;
   --surface: #ffffff;
-  --brand-gradient: linear-gradient(135deg, #176b63 0%, #12554f 100%);
+  --brand-gradient: linear-gradient(135deg, #176b63 0%, #104b45 100%);
+  --brand-forest: #104b45;
+  --brand-teal: #176b63;
+  --brand-ivory: #faf9f6;
+  --brand-amber: #d99b36;
+  --border-subtle: rgba(23, 52, 47, 0.1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-teal-700: #176b63;
-  --color-teal-800: #12554f;
-  --color-brand-50: #eff6ff;
-  --color-brand-100: #dbeafe;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-accent-500: #10b981;
-  --color-accent-600: #059669;
-  --color-slate-200: #dce5e2;
-  --color-slate-300: #c6d4d0;
-  --color-slate-500: #61736f;
-  --color-slate-900: #18302d;
-  --font-sans: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --color-teal-800: #104b45;
+  --color-brand-50: #f0f6f3;
+  --color-brand-100: #dcebe5;
+  --color-brand-500: #31877c;
+  --color-brand-600: #23766b;
+  --color-brand-700: #176b63;
+  --color-brand-800: #104b45;
+  --color-accent-500: #17836f;
+  --color-accent-600: #116b5a;
+  --color-slate-200: #e4e8e4;
+  --color-slate-300: #d2d9d5;
+  --color-slate-500: #697974;
+  --color-slate-900: #172d2a;
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
 
-  /* Premium layered shadows — teal-tinted, used by shadow-* utilities everywhere */
-  --shadow-xs: 0 1px 2px rgba(18, 85, 79, 0.06);
-  --shadow-sm: 0 1px 3px rgba(18, 85, 79, 0.08), 0 1px 2px rgba(18, 85, 79, 0.04);
-  --shadow-md: 0 4px 12px rgba(18, 85, 79, 0.08), 0 2px 4px rgba(18, 85, 79, 0.04);
-  --shadow-lg: 0 12px 32px rgba(18, 85, 79, 0.12), 0 4px 8px rgba(18, 85, 79, 0.06);
-  --shadow-xl: 0 24px 48px rgba(18, 85, 79, 0.16), 0 8px 16px rgba(18, 85, 79, 0.08);
-  --shadow-2xl: 0 32px 64px rgba(18, 85, 79, 0.22);
+  --shadow-xs: 0 1px 2px rgba(20, 47, 41, 0.04);
+  --shadow-sm: 0 2px 8px rgba(20, 47, 41, 0.05);
+  --shadow-md: 0 8px 24px rgba(20, 47, 41, 0.07);
+  --shadow-lg: 0 16px 40px rgba(20, 47, 41, 0.1);
+  --shadow-xl: 0 24px 64px rgba(20, 47, 41, 0.13);
+  --shadow-2xl: 0 32px 80px rgba(20, 47, 41, 0.16);
 }
-
-/* ── Base ─────────────────────────────────────────────── */
 
 body {
   background: var(--background);
   background-image:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(23, 107, 99, 0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(18, 85, 79, 0.05), transparent);
-  background-attachment: fixed;
+    radial-gradient(ellipse 70% 45% at 50% -25%, rgba(23, 107, 99, 0.055), transparent),
+    linear-gradient(180deg, #faf9f6 0%, #f7f8f5 55%, #faf9f6 100%);
   color: var(--foreground);
-  font-family: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
 }
 
 ::selection {
@@ -177,10 +178,14 @@ body {
   background: var(--brand-gradient);
 }
 
+.editorial-serif {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
 .glass {
-  background: rgba(255, 255, 255, 0.78);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  background: rgba(250, 249, 246, 0.92);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 .card-hover {
@@ -190,9 +195,17 @@ body {
     border-color 0.25s ease;
 }
 .card-hover:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(23, 107, 99, 0.35);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(23, 107, 99, 0.28);
+}
+
+.section-rule {
+  border-color: var(--border-subtle);
+}
+
+.text-balance {
+  text-wrap: balance;
 }
 
 /* ── Existing behavior (preserved) ────────────────────── */
@@ -237,4 +250,3 @@ html.easy-mode input {
     animation-iteration-count: 1 !important;
   }
 }
-

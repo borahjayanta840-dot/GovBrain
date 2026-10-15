@@ -2,7 +2,7 @@
 
 ## Runtime
 
-Next.js App Router with TypeScript and Tailwind CSS. Server components fetch public content through `src/lib/data.ts`; client components handle language selection, Easy Mode, the checker, checklist interaction, and OTP auth.
+Next.js App Router with TypeScript and Tailwind CSS. Server components fetch public content through `src/lib/data.ts`; client components handle language selection, Easy Mode, the checker, checklist interaction, OTP auth, and the AI conversation UI.
 
 ## Data
 
@@ -26,8 +26,10 @@ The admin form uses the normal authenticated Supabase session. No service-role k
 1. The browser requests a route.
 2. The server reads the language cookie/query parameter and fetches active database records.
 3. Public routes render service data, official source status, and fallback-language warnings.
-4. User actions call server actions, which re-check the authenticated user before writes.
-5. Admin actions validate input, write related records, and append an audit log.
+4. The AI route rate-limits requests, adds curated platform knowledge and matching published service records, and uses Gemini when `GEMINI_API_KEY` is configured; otherwise it uses the deterministic local provider.
+5. AI responses are instructed to use grounded context only, and returned source URLs are restricted to verified URLs in that context. The assistant does not access private account data or live government application status.
+6. User actions call server actions, which re-check the authenticated user before writes.
+7. Admin actions validate input, write related records, and append an audit log.
 
 ## Analytics
 
@@ -35,4 +37,4 @@ The allowlisted events are `service_search`, `service_view`, `language_changed`,
 
 ## Operational boundaries
 
-This repository does not yet include AI, voice, OCR/document upload, family mode, multi-state rollout, additional launch languages, admin user management, automated production deployment, or a user feedback collection system.
+AI guidance is implemented through the `/ai` route and service-page assistant. Voice, OCR, family mode, multi-state rollout, additional launch languages, admin user management, automated production deployment, and a user feedback collection system are not yet included.

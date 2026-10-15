@@ -4,6 +4,7 @@ import { AssistantResponseSchema, type AssistantResponse } from "./schemas/assis
 import { AiRequestSchema } from "./schemas/ai-request";
 import { getService, getServices, getCategories, selectTranslation } from "@/lib/data";
 import { getRateLimitStore } from "./rate-limit-store";
+import { PLATFORM_KNOWLEDGE } from "./platform-knowledge";
 
 // Provider instances (singletons)
 let geminiProvider: GeminiProvider | null = null;
@@ -60,46 +61,73 @@ export async function checkRateLimit(
 }
 
 
-async function buildContext(request: { message: { service_id?: string; state_code?: string; question: string; language_code?: string } }): Promise<string> {
-  const parts: string[] = [];
+async function buildContext(request: { message: { service_id?: string; state_code?: string; question: string; language_code?: string; conversation_history?: { role: string; content: string }[] } }): Promise<string> {
+  const parts: string[] = [`PLATFORM KNOWLEDGE:\n${PLATFORM_KNOWLEDGE}`];
 
   if (request.message.service_id) {
     const service = await getService(request.message.state_code ?? "", request.message.service_id);
     if (service.data) {
       const { translation } = selectTranslation(service.data.translations, request.message.language_code ?? "en");
-      parts.push(`SERVICE: ${translation?.name ?? service.data.slug}`);
+      parts.push(`PUBLISHED SERVICE: ${translation?.name ?? service.data.slug}\nSERVICE ID: ${service.data.id}\nSTATE CODE: ${service.data.state_code}\nCATEGORY: ${service.data.category.name}`);
       if (translation) {
         parts.push(`DESCRIPTION: ${translation.short_description ?? ""}`);
         if (translation.full_description) parts.push(`FULL DESCRIPTION: ${translation.full_description}`);
-        parts.push(`HOW TO APPLY: ${translation.how_to_apply_text ?? ""}`);
-        parts.push(`ELIGIBILITY: ${translation.eligibility_text ?? ""}`);
+        if (translation.how_to_apply_text) parts.push(`HOW TO APPLY: ${translation.how_to_apply_text}`);
+        if (translation.eligibility_text) parts.push(`ELIGIBILITY: ${translation.eligibility_text}`);
       }
       if (service.data.documents?.length) {
-        parts.push(`REQUIRED DOCUMENTS: ${service.data.documents.map((d: { name: string }) => d.name).join(", ")}`);
+        parts.push(`DOCUMENTS: ${service.data.documents.map((document) => `${document.is_required ? "Required" : "Optional"}: ${document.name}${document.description ? ` (${document.description})` : ""}`).join("; ")}`);
       }
-      if (service.data.sources?.length) {
+      const verifiedSources = service.data.sources?.filter((source) => source.status === "verified") ?? [];
+      if (verifiedSources.length) {
         parts.push(
-          `OFFICIAL SOURCES (only these URLs may be cited): ${service.data.sources
-            .map((s: { source_title: string; source_url: string }) => `${s.source_title} — ${s.source_url}`)
+          `VERIFIED OFFICIAL SOURCES: ${verifiedSources
+            .map((source) => `${source.source_title} — ${source.source_url}${source.verified_at ? ` (verified ${source.verified_at})` : ""}`)
             .join("; ")}`
         );
+      } else {
+        parts.push("NO VERIFIED OFFICIAL SOURCE IS RECORDED FOR THIS SERVICE. Do not invent or cite a URL.");
       }
     } else {
-      parts.push("SERVICE NOT FOUND IN DATABASE for the given state/service.");
+      parts.push(`SERVICE NOT FOUND IN DATABASE for the given state/service. The requested state code was "${request.message.state_code ?? "not specified"}". Do not invent service details.`);
     }
   } else {
-    const services = await getServices({ query: request.message.question });
+    const searchContext = request.message.conversation_history
+      ?.filter((message) => message.role === "user")
+      .slice(-3)
+      .map((message) => message.content)
+      .concat(request.message.question)
+      .join(" ") ?? request.message.question;
+    const services = await getServices({ query: searchContext });
     if (services.data.length) {
-      parts.push(`POTENTIALLY RELEVANT SERVICES: ${services.data.slice(0, 5).map((s: { slug: string; translations: { name: string }[] }) => `${s.translations?.[0]?.name ?? s.slug} (${s.slug})`).join(", ")}`);
+      const relevantServices = services.data.slice(0, 5);
+      parts.push("PUBLISHED CATALOG MATCHES (a match is not confirmation that every detail is verified):");
+      for (const service of relevantServices) {
+        const { translation } = selectTranslation(service.translations, request.message.language_code ?? "en");
+        const serviceFacts = [
+          `SERVICE: ${translation?.name ?? service.slug}`,
+          `SERVICE ID: ${service.id}`,
+          `STATE CODE: ${service.state_code}`,
+          `CATEGORY: ${service.category.name}`,
+          translation?.short_description ? `DESCRIPTION: ${translation.short_description}` : "",
+          translation?.full_description ? `DETAILS: ${translation.full_description}` : "",
+          translation?.eligibility_text ? `ELIGIBILITY: ${translation.eligibility_text}` : "",
+          translation?.how_to_apply_text ? `HOW TO APPLY: ${translation.how_to_apply_text}` : "",
+          service.documents?.length
+            ? `DOCUMENTS: ${service.documents.map((document) => `${document.is_required ? "Required" : "Optional"}: ${document.name}${document.description ? ` (${document.description})` : ""}`).join("; ")}`
+            : "",
+        ].filter(Boolean);
+        const sources = service.sources?.filter((source) => source.status === "verified") ?? [];
+        if (sources.length) {
+          serviceFacts.push(`VERIFIED OFFICIAL SOURCES: ${sources.map((source) => `${source.source_title} — ${source.source_url}${source.verified_at ? ` (verified ${source.verified_at})` : ""}`).join("; ")}`);
+        }
+        parts.push(serviceFacts.join("\n"));
+      }
     }
     const categories = await getCategories();
     if (categories.data.length) {
-      parts.push(`AVAILABLE CATEGORIES: ${categories.data.map((c: { name: string }) => c.name).join(", ")}`);
+      parts.push(`AVAILABLE SERVICE CATEGORIES: ${categories.data.map((category) => category.name).join(", ")}`);
     }
-  }
-
-  if (!parts.length) {
-    parts.push("NO VERIFIED DATABASE CONTEXT AVAILABLE.");
   }
 
   return parts.join("\n\n");
@@ -182,9 +210,23 @@ export async function generateAnswer(
   try {
     const provider = geminiApiKey ? getGeminiProvider() : getLocalProvider();
     const context = await buildContext(validated);
-    const result = await provider.generateAnswer(validated.message.question, context, validated.message.language_code ?? "en");
+    const result = await provider.generateAnswer(
+      validated.message.question,
+      context,
+      validated.message.language_code ?? "en",
+      validated.message.conversation_history
+    );
     // Validate the provider output before returning it to the application
-    const response = AssistantResponseSchema.parse(result) as AssistantResponse;
+    const verifiedUrls = new Set(
+      [...context.matchAll(/^VERIFIED OFFICIAL SOURCES:\s*(.+)$/gm)]
+        .flatMap(([, sources]) => [...sources.matchAll(/https?:\/\/[^\s;]+/g)].map(([url]) => url.replace(/[),.;]+$/, "")))
+    );
+    const serviceIds = new Set([...context.matchAll(/^SERVICE ID:\s*([^\s]+)$/gm)].map(([, id]) => id));
+    const response = AssistantResponseSchema.parse({
+      ...result,
+      service_id: result.service_id && serviceIds.has(result.service_id) ? result.service_id : null,
+      official_sources: result.official_sources.filter((source) => verifiedUrls.has(source.url)),
+    }) as AssistantResponse;
     return { response, usage: { tokens_used: 0, provider: geminiApiKey ? "gemini" : "local", latency_ms: 0 } };
   } catch (error) {
     // AI failure fallback: never surface provider errors to users. Return a
@@ -193,7 +235,12 @@ export async function generateAnswer(
     try {
       const provider = getLocalProvider();
       const context = await buildContext(validated);
-      const result = await provider.generateAnswer(validated.message.question, context, validated.message.language_code ?? "en");
+      const result = await provider.generateAnswer(
+        validated.message.question,
+        context,
+        validated.message.language_code ?? "en",
+        validated.message.conversation_history
+      );
       const response = AssistantResponseSchema.parse(result) as AssistantResponse;
       return { response, usage: { tokens_used: 0, provider: "local", latency_ms: 0 } };
     } catch (fallbackError) {

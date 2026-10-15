@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { detectIntent, generateAnswer } from "@/lib/ai/ai-service";
+import { generateAnswer } from "@/lib/ai/ai-service";
+import { UserMessageSchema } from "@/lib/ai/schemas/ai-request";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate required fields
-    if (!body?.message?.question?.trim()) {
+    const parsedMessage = UserMessageSchema.safeParse(body?.message);
+    if (!parsedMessage.success) {
       return NextResponse.json(
-        { error: "Message is required", code: "VALIDATION_ERROR" },
+        { error: "Please provide a valid question and conversation.", code: "VALIDATION_ERROR" },
         { status: 400 }
       );
     }
-
-    // Get client identifier (user_id) for rate limiting via the service layer
-    const user_id = body.user_id as string | undefined;
-    const is_authenticated = (body.is_authenticated as boolean) ?? false;
 
     // Server-derived identifier for rate limiting (IP for anonymous users)
     const clientIdentifier =
@@ -23,52 +20,20 @@ export async function POST(request: NextRequest) {
       request.headers.get("x-real-ip") ||
       "anonymous";
 
-    // Detect intent first
-    const intentResult = await detectIntent({
-      message: body.message,
-      user_id,
-      identifier: clientIdentifier,
-      is_authenticated,
-    });
-
-    // If clarification is needed, return immediately
-    if (intentResult.intent.clarification_needed) {
-      return NextResponse.json({
-        response: {
-          intent: intentResult.intent.intent,
-          language: intentResult.intent.language,
-          service_id: null,
-          answer: "",
-          eligibility: [],
-          required_documents: [],
-          next_steps: [],
-          official_sources: [],
-          needs_clarification: true,
-          clarification_question: intentResult.intent.clarification_question ?? null,
-        },
-        usage: intentResult.usage,
-        needs_clarification: true,
-      });
-    }
-
-    // Generate full answer
+    // Generate one grounded answer per turn; the provider can clarify while
+    // still answering platform questions and using conversation context.
     const answerResult = await generateAnswer({
       message: {
-        question: body.message.question,
-        language_code: body.message.language_code,
-        service_id: body.message.service_id,
-        state_code: body.message.state_code,
-        conversation_history: body.message.conversation_history,
+        ...parsedMessage.data,
       },
-      user_id,
       identifier: clientIdentifier,
-      is_authenticated,
+      is_authenticated: false,
     });
 
     return NextResponse.json({
       response: answerResult.response,
       usage: answerResult.usage,
-      needs_clarification: false,
+      needs_clarification: answerResult.response.needs_clarification,
     });
   } catch (error) {
     console.error("AI API error:", error);

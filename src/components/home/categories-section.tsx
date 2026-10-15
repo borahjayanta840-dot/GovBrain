@@ -74,19 +74,19 @@ export function CategoriesSection({
           <Reveal key={card.key} delay={Math.min(index, 7) * 0.05}>
             <Link
               href={card.href}
-              className="card-hover group flex h-full flex-col rounded-xl border border-slate-200/80 bg-white p-5 shadow-md ring-1 ring-teal-900/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+              className="card-hover group flex h-full flex-col rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:p-6"
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-700/10 text-teal-800 transition-colors group-hover:bg-teal-700 group-hover:text-white">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eef4f0] text-teal-800 transition-colors group-hover:bg-teal-800 group-hover:text-white">
                 <HomeIcon name={card.icon} />
               </span>
-              <span className="mt-4 text-base font-bold text-slate-900 group-hover:text-teal-800">
+              <span className="mt-5 text-base font-semibold tracking-tight text-slate-900 group-hover:text-teal-800">
                 {card.title}
               </span>
-              <span className="mt-1 text-sm leading-6 text-slate-600">
+              <span className="mt-1.5 text-sm leading-6 text-slate-600">
                 {card.blurb}
               </span>
-              <span className="mt-3 text-xs font-bold tracking-widest text-teal-700 uppercase">
-                Explore →
+              <span className="mt-5 text-xs font-semibold tracking-wide text-teal-800">
+                Explore category <span aria-hidden="true">→</span>
               </span>
             </Link>
           </Reveal>
